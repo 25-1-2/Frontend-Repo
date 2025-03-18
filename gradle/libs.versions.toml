@@ -28,7 +28,7 @@ kakaoV2AllVersion = "2.20.6"
 appcompat = "1.7.0"
 kotlinxCoroutinesAndroid = "1.9.0"
 lottie = "5.2.0"
-material = "1.12.0"
+material = "1.7.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
 navigationRuntimeKtx = "2.8.4"
@@ -45,6 +45,8 @@ jetbrainsKotlinJvm = "1.9.24"
 ksp = "1.9.24-1.0.20"
 
 [libraries]
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
+navigation-compose = { group = "androidx.navigation" , name = "navigation-compose", version = "2.8.0"}
 androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
