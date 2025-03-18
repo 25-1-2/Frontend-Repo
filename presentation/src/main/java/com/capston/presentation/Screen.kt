@@ -9,37 +9,49 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screen(
-    val route: String,
-    @StringRes val resourceId: Int,
-    val icon: Any
+    val title: String,
+    val selectedIcon: Any,
+    val unselectedIcon: Any,
+    val hasBadge: Boolean,
+    val messages: Int
 ) {
     data object Home: Screen(
-        route = "home",
-        resourceId = R.string.home,
-        icon = Icons.Default.Home
+        title = "home",
+        selectedIcon = R.drawable.activity_main_home_iv_on,
+        unselectedIcon = R.drawable.activity_main_home_iv,
+        hasBadge = false,
+        messages = 0
     )
 
     data object Calender: Screen(
-        route = "calender",
-        resourceId = R.string.calender,
-        icon = R.drawable.activity_main_calender_iv
-    )
-
-    data object LectureList: Screen(
-        route = "lecture_list",
-        resourceId = R.string.lecture_list,
-        icon = R.drawable.activity_main_lecture_list_iv
+        title = "calender",
+        selectedIcon = R.drawable.activity_main_calener_iv_on,
+        unselectedIcon = R.drawable.activity_main_calender_iv,
+        hasBadge = false,
+        messages = 0
     )
 
     data object Search: Screen(
-        route = "search",
-        resourceId = R.string.search,
-        icon = Icons.Default.Search
+        title = "search",
+        selectedIcon = Icons.Default.Search,
+        unselectedIcon = Icons.Default.Search,
+        hasBadge = true,
+        messages = 12
+    )
+
+    data object LectureList: Screen(
+        title = "calender",
+        selectedIcon = R.drawable.activity_main_lecture_list_iv_on,
+        unselectedIcon = R.drawable.activity_main_lecture_list_iv,
+        hasBadge = false,
+        messages = 0
     )
 
     data object Profile: Screen(
-        route = "profile",
-        resourceId = R.string.profile,
-        icon = Icons.Default.AccountCircle
+        title = "profile",
+        selectedIcon = R.drawable.activity_main_profile_iv_on,
+        unselectedIcon = R.drawable.activity_main_profile_iv,
+        hasBadge = false,
+        messages = 0
     )
 }
