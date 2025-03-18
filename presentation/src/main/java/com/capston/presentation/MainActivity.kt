@@ -6,16 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -35,8 +26,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.capston.presentation.theme.CapstonTheme
-import com.capston.presentation.theme.LightGray
 import com.capston.presentation.theme.LightGray2
 import com.capston.presentation.theme.MainPurple
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,19 +51,21 @@ class MainActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SettingTopBottomBar(modifier: Modifier = Modifier) {
-
+    var bottomNavState by rememberSaveable { mutableStateOf(0) }
+    val navController = rememberNavController()
     Scaffold(
         topBar = { TopBar() },
-        bottomBar = { BottomBar() },
-
+        bottomBar = { BottomBar(navController, bottomNavState, { index -> bottomNavState = index }) },
     ) { contentPadding ->
-        Column(
-            modifier
-                .padding(contentPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.title
         ) {
+            composable(Screen.Home.title) { HomeScreen() }
+            composable(Screen.Calender.title) { CalenderScreen() }
+            composable(Screen.Search.title){ SearchScreen()}
+            composable(Screen.LectureList.title) { LectureListScreen() }
+            composable(Screen.Profile.title) { ProfileScreen() }
         }
     }
 }
@@ -85,19 +81,16 @@ fun TopBar() {
                 .clip(RoundedCornerShape(20.dp))
                 .height(80.dp),
             navigationIcon = {
-                // 메뉴
-                IconButton(onClick = {  }) {
+                IconButton(onClick = { /* 메뉴 클릭 */ }) {
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = "Menu icon",
                         Modifier.size(30.dp)
                     )
                 }
-
             },
             actions = {
-                // 알람
-                IconButton(onClick = {  }) {
+                IconButton(onClick = { /* 알람 클릭 */ }) {
                     Icon(
                         imageVector = Icons.Outlined.Notifications,
                         contentDescription = "alarm icon",
@@ -111,18 +104,19 @@ fun TopBar() {
 }
 
 @Composable
-fun BottomBar() {
-    Divider(color = LightGray2, thickness = 1.dp)
-
+fun BottomBar(
+    navController: NavController,
+    bottomNavState: Int,
+    onNavItemClick: (Int) -> Unit
+) {
     val items: List<Screen> = listOf(
         Screen.Home,
         Screen.Calender,
         Screen.LectureList,
         Screen.Profile,
     )
-    var bottomNavState by rememberSaveable {
-        androidx.compose.runtime.mutableIntStateOf(0)
-    }
+
+    Divider(color = LightGray2, thickness = 1.dp)
     Box(
         Modifier
             .fillMaxWidth()
@@ -139,7 +133,10 @@ fun BottomBar() {
 
                 NavigationBarItem(
                     selected = bottomNavState == index,
-                    onClick = { bottomNavState = index },
+                    onClick = {
+                        onNavItemClick(index)
+                        navController.navigate(item.title) // 클릭 시 해당 화면으로 이동
+                    },
                     icon = {
                         when (val icon = if (bottomNavState == index) item.selectedIcon else item.unselectedIcon) {
                             is ImageVector -> Icon(imageVector = icon, contentDescription = item.title)
@@ -157,7 +154,9 @@ fun BottomBar() {
         }
 
         FloatingActionButton(
-            onClick = { },
+            onClick = {
+                navController.navigate(Screen.Search.title)
+            },
             containerColor = MainPurple,
             modifier = Modifier
                 .size(60.dp)
