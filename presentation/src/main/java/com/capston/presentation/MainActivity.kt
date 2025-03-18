@@ -33,15 +33,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.capston.presentation.theme.CapstonTheme
 import com.capston.presentation.theme.LightGray
 import com.capston.presentation.theme.LightGray2
@@ -55,114 +48,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CapstonTheme {
-                MyApp()
+                SettingTopBottomBar()
             }
         }
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp(modifier: Modifier = Modifier) {
-    val items: List<Screen> = listOf(
-        Screen.Home,
-        Screen.Calender,
-        Screen.LectureList,
-        Screen.Profile,
-    )
-    var bottomNavState by rememberSaveable {
-        mutableStateOf(0)
-    }
+fun SettingTopBottomBar(modifier: Modifier = Modifier) {
+
     Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {},
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .height(80.dp),
-                    navigationIcon = {
-                        // 메뉴
-                        IconButton(onClick = {  }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu icon",
-                                Modifier.size(30.dp)
-                            )
-                        }
-
-                    },
-                    actions = {
-                        // 알람
-                        IconButton(onClick = {  }) {
-                            Icon(
-                                imageVector = Icons.Outlined.Notifications,
-                                contentDescription = "alarm icon",
-                                Modifier.size(30.dp)
-                            )
-                        }
-                    },
-                )
-                Divider(color = LightGray2, thickness = 1.dp)
-            }
-        },
-        bottomBar = {
-            Divider(color = LightGray2, thickness = 1.dp)
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(70.dp) // BottomNavigationBar 높이 설정
-            ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    items.forEachIndexed { index, item ->
-                        if (index == items.size / 2) {
-                            Box(Modifier.weight(1f)) // 중앙 간격을 확보하기 위해 빈 Box 추가
-                        }
-
-                        NavigationBarItem(
-                            selected = bottomNavState == index,
-                            onClick = { bottomNavState = index },
-                            icon = {
-                                when (val icon = if (bottomNavState == index) item.selectedIcon else item.unselectedIcon) {
-                                    is ImageVector -> Icon(imageVector = icon, contentDescription = item.title)
-                                    is Int -> Image(painter = painterResource(icon), contentDescription = item.title)
-                                    else -> {} // 예외 처리
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MainPurple,
-                                selectedTextColor = MainPurple,
-                                indicatorColor = Color.Transparent
-                            )
-                        )
-                    }
-                }
-
-                FloatingActionButton(
-                    onClick = { },
-                    containerColor = MainPurple,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .align(Alignment.Center)
-                        .offset(y = -20.dp), // FAB이 NavigationBar 위로 떠 있도록 설정
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "search",
-                        tint = Color.White
-                    )
-                }
-            }
-        },
+        topBar = { TopBar() },
+        bottomBar = { BottomBar() },
 
     ) { contentPadding ->
-
         Column(
             modifier
                 .padding(contentPadding)
@@ -172,13 +72,112 @@ fun MyApp(modifier: Modifier = Modifier) {
         ) {
         }
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar() {
+    Column {
+        TopAppBar(
+            title = {},
+            modifier = Modifier
+                .padding(10.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .height(80.dp),
+            navigationIcon = {
+                // 메뉴
+                IconButton(onClick = {  }) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu icon",
+                        Modifier.size(30.dp)
+                    )
+                }
+
+            },
+            actions = {
+                // 알람
+                IconButton(onClick = {  }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Notifications,
+                        contentDescription = "alarm icon",
+                        Modifier.size(30.dp)
+                    )
+                }
+            },
+        )
+        Divider(color = LightGray2, thickness = 1.dp)
+    }
+}
+
+@Composable
+fun BottomBar() {
+    Divider(color = LightGray2, thickness = 1.dp)
+
+    val items: List<Screen> = listOf(
+        Screen.Home,
+        Screen.Calender,
+        Screen.LectureList,
+        Screen.Profile,
+    )
+    var bottomNavState by rememberSaveable {
+        androidx.compose.runtime.mutableIntStateOf(0)
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(70.dp) // BottomNavigationBar 높이 설정
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            items.forEachIndexed { index, item ->
+                if (index == items.size / 2) {
+                    Box(Modifier.weight(1f)) // 중앙 간격을 확보하기 위해 빈 Box 추가
+                }
+
+                NavigationBarItem(
+                    selected = bottomNavState == index,
+                    onClick = { bottomNavState = index },
+                    icon = {
+                        when (val icon = if (bottomNavState == index) item.selectedIcon else item.unselectedIcon) {
+                            is ImageVector -> Icon(imageVector = icon, contentDescription = item.title)
+                            is Int -> Image(painter = painterResource(icon), contentDescription = item.title)
+                            else -> {} // 예외 처리
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MainPurple,
+                        selectedTextColor = MainPurple,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { },
+            containerColor = MainPurple,
+            modifier = Modifier
+                .size(60.dp)
+                .align(Alignment.Center)
+                .offset(y = -20.dp), // FAB이 NavigationBar 위로 떠 있도록 설정
+            shape = RoundedCornerShape(50)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = "search",
+                tint = Color.White
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     CapstonTheme {
-        MyApp()
+        SettingTopBottomBar()
     }
 }
