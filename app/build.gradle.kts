@@ -80,7 +80,7 @@ dependencies {
     implementation (libs.relex.circleindicator)
 
     // kakao
-    implementation (libs.com.kakao.sdk.v2.all)
+//    implementation (libs.com.kakao.sdk.v2.all)
 
     // datastore
     implementation (libs.androidx.datastore.preferences)
@@ -121,4 +121,8 @@ dependencies {
     //room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+
+    // bottom navigation
+    implementation(libs.androidx.material)
+    implementation(libs.navigation.compose)
 }
