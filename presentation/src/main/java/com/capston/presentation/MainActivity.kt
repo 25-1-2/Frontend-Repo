@@ -44,6 +44,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.capston.presentation.theme.CapstonTheme
 import com.capston.presentation.theme.LightGray
+import com.capston.presentation.theme.LightGray2
 import com.capston.presentation.theme.MainPurple
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -75,31 +76,40 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Box(modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center) {
-                    }
+            Column {
+                TopAppBar(
+                    title = {},
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .height(80.dp),
+                    navigationIcon = {
+                        // 메뉴
+                        IconButton(onClick = {  }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menu icon",
+                                Modifier.size(30.dp)
+                            )
+                        }
 
-                },
-                modifier
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-                navigationIcon = {
-                    // 메뉴
-                    IconButton(onClick = {  }) {
-                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu icon" )
-                    }
-
-                },
-                actions = {
-                    IconButton(onClick = {  }) {
-                        Icon(imageVector = Icons.Outlined.Notifications, contentDescription = "alarm icon" )
-                    }
-                },
-            )
+                    },
+                    actions = {
+                        // 알람
+                        IconButton(onClick = {  }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = "alarm icon",
+                                Modifier.size(30.dp)
+                            )
+                        }
+                    },
+                )
+                Divider(color = LightGray2, thickness = 1.dp)
+            }
         },
         bottomBar = {
+            Divider(color = LightGray2, thickness = 1.dp)
             Box(
                 Modifier
                     .fillMaxWidth()
