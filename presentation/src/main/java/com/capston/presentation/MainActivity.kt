@@ -90,15 +90,29 @@ fun TopBar() {
                 }
             },
             actions = {
-                IconButton(onClick = { /* 알람 클릭 */ }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Notifications,
-                        contentDescription = "alarm icon",
-                        Modifier.size(30.dp)
-                    )
+                Box(
+                    contentAlignment = Alignment.TopEnd,
+                    modifier = Modifier.size(40.dp) // 아이콘 크기와 정렬을 위해 설정
+                ) {
+                    IconButton(onClick = { /* 알람 클릭 */ }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Notifications,
+                            contentDescription = "alarm icon",
+                            Modifier.size(30.dp)
+                        )
+                    }
+                    BadgedBox(
+                        badge = {
+                            Badge(
+                                modifier = Modifier.offset(x = (-4).dp, y = (4).dp) // 오른쪽 위로 조정
+                            ) {
+                                Text(text = "3") // TODO 실제 알림 개수로 변경
+                            }
+                        }
+                    ) { }
                 }
             },
-        )
+            )
         Divider(color = LightGray2, thickness = 1.dp)
     }
 }
@@ -172,6 +186,7 @@ fun BottomBar(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
