@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -62,4 +63,5 @@ dependencies {
     // bottom navigation
     implementation(libs.androidx.material)
     implementation(libs.navigation.compose)
+
 }
