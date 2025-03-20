@@ -5,6 +5,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,12 +33,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.capston.presentation.theme.CapstonTheme
+import com.capston.presentation.theme.LightGray
+import com.capston.presentation.theme.LightGray3
+import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.MainPurple
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -44,24 +55,62 @@ fun HomeScreen() {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = 150.dp),
+            .offset(y = 66.dp),
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            LazyRow(
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp) // 좌우 여백 추가
+                    .border(width = 2.dp, color = LightGray4)
+                    .background(LightGray3)
+                    .padding(vertical = 16.dp)
             ) {
-                items(3) { index -> // TODO 개수 나중에 API로 받아서 수정
-                    circleGraph("전체")
-                    Spacer(modifier = Modifier.width(16.dp)) // 그래프 간격 추가
-                    circleGraph("수분감")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    circleGraph("믿어봐")
+                Column(
+                    modifier = Modifier
+                        .padding(start = 20.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, // 세로로 정렬
+                        horizontalArrangement = Arrangement.SpaceBetween, // 양 끝에 배치
+                        modifier = Modifier.fillMaxWidth() // Row를 최대 너비로 설정
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_status),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                        )
+
+                        Text(
+                            text = "편집",
+                            color = LightGray, // 원하는 색상으로 설정
+                            modifier = Modifier
+                                .padding(top = 25.dp, end = 20.dp)
+                                .clickable {
+                                    // 편집 버튼 클릭 시 동작
+                                }
+                        )
+                    }
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        items(3) { index -> // TODO 개수 나중에 API로 받아서 수정
+                            circleGraph("전체")
+                            Spacer(modifier = Modifier.width(16.dp)) // 그래프 간격 추가
+                            circleGraph("수분감")
+                            Spacer(modifier = Modifier.width(16.dp))
+                            circleGraph("믿어봐")
+                        }
+                    }
                 }
             }
 
@@ -75,22 +124,28 @@ fun HomeScreen() {
 @Composable
 fun LectureList() {
     Column(modifier = Modifier.padding(30.dp)) {
-        Text("⭐ 오늘의 강의 (총 3강, 약 42분)", style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val lectures = listOf(
-            "1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            "2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            "3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
+        val lectures = mutableListOf<String>(
+            //"1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
+            //"2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
+            //"3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
         )
 
-        lectures.forEach { lecture ->
-            Text(lecture, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(50.dp))
+        Text("⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (lectures.size == 0) {
+            Text("오늘 강의가 없어요 \uD83D\uDE0A\n" +
+                    "푹 쉬고 내일 다시 달려보아요 \uD83C\uDFC3")
         }
+        else {
+            lectures.forEach { lecture ->
+                Text(lecture, style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(50.dp))
+            }
+        }
+
     }
 }
-
 @Composable
 fun circleGraph(name: String) {
     val animatedValue = remember { Animatable(0f) }
@@ -104,7 +159,7 @@ fun circleGraph(name: String) {
     }
 
     Canvas(
-        modifier = Modifier.size(150.dp)
+        modifier = Modifier.size(150.dp) // ✅ 원 그래프 크기
     ) {
         val sizeArc = size / 1.3F
         drawArc(
@@ -157,5 +212,13 @@ fun circleGraph(name: String) {
                 textSize = 50f  // 텍스트 크기
             }
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    CapstonTheme {
+        HomeScreen()
     }
 }

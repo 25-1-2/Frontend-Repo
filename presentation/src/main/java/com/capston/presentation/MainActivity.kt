@@ -189,11 +189,3 @@ fun BottomBar(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CapstonTheme {
-        SettingTopBottomBar()
-    }
-}
