@@ -1,7 +1,7 @@
 ---
 name: Feature/UI Template
 about: 기능 및 UI 이슈 템플릿
-title: "[Feat]"
+title: "[FEAT]"
 labels: ''
 assignees: ''
 
