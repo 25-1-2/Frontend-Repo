@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -88,7 +89,7 @@ fun HomeScreen() {
                         )
 
                         Text(
-                            text = "편집",
+                            text = stringResource(R.string.home_edit),
                             color = LightGray, // 원하는 색상으로 설정
                             modifier = Modifier
                                 .padding(top = 25.dp, end = 20.dp)
@@ -114,7 +115,7 @@ fun HomeScreen() {
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
+            Spacer(modifier = Modifier.height(30.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
 
             LectureList()
         }
@@ -123,29 +124,43 @@ fun HomeScreen() {
 
 @Composable
 fun LectureList() {
-    Column(modifier = Modifier.padding(30.dp)) {
-        val lectures = mutableListOf<String>(
-            //"1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            //"2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            //"3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
-        )
 
-        Text("⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)", style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
+    val lectures = mutableListOf<String>(
+        "1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
+        "2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
+        //"3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
+    )
 
-        if (lectures.size == 0) {
-            Text("오늘 강의가 없어요 \uD83D\uDE0A\n" +
-                    "푹 쉬고 내일 다시 달려보아요 \uD83C\uDFC3")
+    LazyColumn(
+        modifier = Modifier.padding(start = 30.dp),
+    ) {
+        item {
+            Text(
+                text = "⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
-        else {
-            lectures.forEach { lecture ->
+
+        // 강의가 없을 경우
+        if (lectures.isEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+                Text("오늘 강의가 없어요 \uD83D\uDE0A\n" +
+                        "푹 쉬고 내일 다시 달려보아요 \uD83C\uDFC3")
+            }
+        } else {
+            // 강의가 있을 경우
+            items(lectures) { lecture ->
                 Text(lecture, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
-
     }
 }
+
 @Composable
 fun circleGraph(name: String) {
     val animatedValue = remember { Animatable(0f) }
