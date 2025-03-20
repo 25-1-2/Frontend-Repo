@@ -64,4 +64,8 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.navigation.compose)
 
+    // bottom 시트
+    implementation(libs.androidx.compose.material3)
+
+
 }

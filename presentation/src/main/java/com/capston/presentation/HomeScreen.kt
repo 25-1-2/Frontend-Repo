@@ -16,9 +16,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,15 +29,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +64,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Image
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +77,8 @@ import com.capston.presentation.theme.LightGray3
 import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.LightGray60
 import com.capston.presentation.theme.MainPurple
+import com.capston.presentation.theme.Purple40
+import kotlinx.coroutines.launch
 
 val lectures = listOf(
     Pair("1. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
@@ -67,9 +86,15 @@ val lectures = listOf(
     Pair( "3. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen() {
+    // ModalBottomSheet의 boolean 상태를 기억
+    var isBottomSheetVisible by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -112,6 +137,7 @@ fun HomeScreen() {
                                 .padding(top = 25.dp, end = 20.dp)
                                 .clickable {
                                     // 편집 버튼 클릭 시 동작
+                                    isBottomSheetVisible = true // 편집 버튼 클릭 시 bottom sheet 열기
                                 }
                         )
                     }
@@ -134,13 +160,184 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(30.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
 
-            LectureList()
+            LessonList()
+        }
+    }
+
+    // 바텀 시트
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            sheetState = modalBottomSheetState,
+            onDismissRequest = { isBottomSheetVisible = false }
+        ) {
+            CustomBottomSheetDialog(
+                title = "강의 목록",
+                description = "수강 중인 강의를 선택하세요.",
+                modalBottomSheetState = modalBottomSheetState,
+                onDismiss = { isBottomSheetVisible = false }
+            )
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomBottomSheetDialog(
+    title: String,
+    description: String,
+    modalBottomSheetState: SheetState,
+    onDismiss: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    Column(
+        modifier = Modifier
+            .padding(top = 10.dp, start = 10.dp, end = 10.dp, bottom = bottomPadding)
+            .fillMaxWidth()
+            .height(300.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            textAlign = TextAlign.Start,
+            style = TextStyle(
+                color = Color.Black,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = description,
+            textAlign = TextAlign.Center,
+            style = TextStyle(
+                color = Color.Gray,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal
+            )
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp)
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // modalBottomSheetState를 LectureList에 전달
+            LectureList(modalBottomSheetState)
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = {
+                scope.launch {
+                    modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    onDismiss()
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Purple40,
+                contentColor = Color.White,
+                disabledContainerColor = Purple40,
+                disabledContentColor = Color.White,
+            ),
+        ) {
+            Text("수정 완료")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LectureList(modalBottomSheetState: SheetState) {
+    val lectures = listOf(
+        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
+        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
+        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
+        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
+    )
+
+    Column {
+        lectures.forEach {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                // 체크 박스 ----------------
+                CheckBox()
+
+                // 강의 목록 -----------------
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = it.second, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = it.first, fontSize = 12.sp, color = Color.Gray)
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // 수정 ----------------------
+                var editState by remember { mutableStateOf(true) }
+
+                IconButton(
+                    onClick = {
+                        editState = !editState
+                    },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                ) {
+                    if (editState) {
+                        //TODO
+                    }
+
+                    Image(
+                        painter = painterResource(id = R.drawable.home_screen_edit_iv),
+                        contentDescription = "Lecture Icon"
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun LectureList() {
+fun CheckBox() {
+    var imageState by remember { mutableStateOf(true) }
+
+    IconButton(
+        onClick = {
+            imageState = !imageState
+        },
+        modifier = Modifier
+            .size(40.dp) // 이미지 버튼 크기 설정
+            .padding(end = 16.dp) // 이미지와 텍스트 간의 간격 설정
+    ) {
+        // 상태에 따라 이미지 변경
+        val imageRes = if (imageState) {
+            R.drawable.home_screen_check_off // 기본 이미지
+        } else {
+            R.drawable.home_screen_check_on // 클릭된 이미지
+        }
+
+        Image(
+            painter = painterResource(id = imageRes), // 상태에 따른 이미지 리소스 설정
+            contentDescription = "Lecture Icon"
+        )
+    }
+}
+
+@Composable
+fun LessonList() {
     LazyColumn(
         modifier = Modifier.padding(start = 30.dp),
     ) {
@@ -169,28 +366,7 @@ fun LectureList() {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
                 ) {
 
-                    var imageState by remember { mutableStateOf(true) }
-
-                    IconButton(
-                        onClick = {
-                            imageState = !imageState
-                        },
-                        modifier = Modifier
-                            .size(40.dp) // 이미지 버튼 크기 설정
-                            .padding(end = 16.dp) // 이미지와 텍스트 간의 간격 설정
-                    ) {
-                        // 상태에 따라 이미지 변경
-                        val imageRes = if (imageState) {
-                            R.drawable.home_screen_check_off // 기본 이미지
-                        } else {
-                            R.drawable.home_screen_check_on // 클릭된 이미지
-                        }
-
-                        Image(
-                            painter = painterResource(id = imageRes), // 상태에 따른 이미지 리소스 설정
-                            contentDescription = "Lecture Icon"
-                        )
-                    }
+                    CheckBox()
                     Column {
                         Text(lecture.first, style = MaterialTheme.typography.bodyLarge)
                         Text(

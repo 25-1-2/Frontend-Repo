@@ -43,8 +43,10 @@ draganddrop = "1.0.0"
 pagingCommonAndroid = "3.3.4"
 jetbrainsKotlinJvm = "1.9.24"
 ksp = "1.9.24-1.0.20"
+material3 = "1.1.0"
 
 [libraries]
+androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 navigation-compose = { group = "androidx.navigation" , name = "navigation-compose", version = "2.8.0"}
 androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
