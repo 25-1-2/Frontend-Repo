@@ -33,20 +33,26 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,6 +67,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Image
@@ -76,6 +83,7 @@ import com.capston.presentation.theme.LightGray40
 import com.capston.presentation.theme.LightGray3
 import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.LightGray60
+import com.capston.presentation.theme.MainBlue
 import com.capston.presentation.theme.MainPurple
 import com.capston.presentation.theme.Purple40
 import kotlinx.coroutines.launch
@@ -259,51 +267,79 @@ fun CustomBottomSheetDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LectureList(modalBottomSheetState: SheetState) {
-    val lectures = listOf(
-        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
-        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
-        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
-        Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
-    )
+    // 강의 리스트 데이터
+    val lectures = remember {
+        mutableStateListOf(
+            Pair("2026 현우진의 수분감 - 수학I (공통)", "2026 현우진"),
+            Pair("2026 현우진의 수분감 - 수학II (공통)", "2026 현우진"),
+            Pair("2026 현우진의 수분감 - 수학III (공통)", "2026 현우진"),
+        )
+    }
+
+    // 강의 체크박스 상태 관리
+    val checkedStates = remember { mutableStateListOf<Boolean>(false, false, false) }
 
     Column {
-        lectures.forEach {
+        lectures.forEachIndexed { index, lecture ->
+            var lectureTitle by remember { mutableStateOf(lecture.second) } // 강의 제목을 수정할 변수
+            var isEditing by remember { mutableStateOf(false) } // 수정 모드 여부
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
-                // 체크 박스 ----------------
                 CheckBox()
 
-                // 강의 목록 -----------------
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(text = it.second, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = it.first, fontSize = 12.sp, color = Color.Gray)
-                }
+                // 수정 모드일 때 TextField 보여주기
+                if (isEditing) {
+                    OutlinedTextField(
+                        value = lectureTitle,
+                        onValueChange = { lectureTitle = it },
+                        label = { Text("강의 별칭") },
+                        modifier = Modifier.weight(1f),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = Color.Red, // 포커스 되었을 때 테두리 색상
+                            unfocusedBorderColor = MainBlue // 기본(포커스 안 된) 상태의 테두리 색상
+                        )
+                    )
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // 수정 ----------------------
-                var editState by remember { mutableStateOf(true) }
-
-                IconButton(
-                    onClick = {
-                        editState = !editState
-                    },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                ) {
-                    if (editState) {
-                        //TODO
+                    Button(
+                        onClick = {
+                            // 확인 버튼 클릭 시 수정된 내용 적용
+                            lectures[index] = lectures[index].first to lectureTitle
+                            isEditing = false  // 수정 모드 종료
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Purple40,
+                            contentColor = Color.White,
+                        ),
+                        modifier = Modifier.padding(start = 16.dp)
+                    ) {
+                        Text("확인")
+                    }
+                } else {
+                    // 수정 모드가 아닐 때는 기존 강의 제목을 그대로 표시
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = lectureTitle, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = lecture.first,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LightGray60
+                        )
                     }
 
-                    Image(
-                        painter = painterResource(id = R.drawable.home_screen_edit_iv),
-                        contentDescription = "Lecture Icon"
-                    )
+                    // 수정 버튼
+                    IconButton(
+                        onClick = {
+                            isEditing = true // 수정 모드로 전환
+                        },
+                        modifier = Modifier.padding(start = 16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.home_screen_edit_iv),
+                            contentDescription = "Edit Mode"
+                        )
+                    }
                 }
             }
         }
