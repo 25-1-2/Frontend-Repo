@@ -1,13 +1,16 @@
 package com.capston.presentation
 
 import android.annotation.SuppressLint
+import android.media.Image
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,16 +42,26 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import com.capston.presentation.theme.CapstonTheme
-import com.capston.presentation.theme.LightGray
+import com.capston.presentation.theme.LightGray40
 import com.capston.presentation.theme.LightGray3
 import com.capston.presentation.theme.LightGray4
+import com.capston.presentation.theme.LightGray60
 import com.capston.presentation.theme.MainPurple
+
+val lectures = listOf(
+    Pair("1. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair("2. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "3. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+)
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -90,7 +103,7 @@ fun HomeScreen() {
 
                         Text(
                             text = stringResource(R.string.home_edit),
-                            color = LightGray, // 원하는 색상으로 설정
+                            color = LightGray40, // 원하는 색상으로 설정
                             modifier = Modifier
                                 .padding(top = 25.dp, end = 20.dp)
                                 .clickable {
@@ -105,11 +118,11 @@ fun HomeScreen() {
                             .padding(16.dp)
                     ) {
                         items(3) { index -> // TODO 개수 나중에 API로 받아서 수정
-                            circleGraph("전체")
+                            CircleGraph("전체")
                             Spacer(modifier = Modifier.width(16.dp)) // 그래프 간격 추가
-                            circleGraph("수분감")
+                            CircleGraph("수분감")
                             Spacer(modifier = Modifier.width(16.dp))
-                            circleGraph("믿어봐")
+                            CircleGraph("믿어봐")
                         }
                     }
                 }
@@ -124,13 +137,6 @@ fun HomeScreen() {
 
 @Composable
 fun LectureList() {
-
-    val lectures = mutableListOf<String>(
-        "1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-        "2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-        //"3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
-    )
-
     LazyColumn(
         modifier = Modifier.padding(start = 30.dp),
     ) {
@@ -154,15 +160,35 @@ fun LectureList() {
         } else {
             // 강의가 있을 경우
             items(lectures) { lecture ->
-                Text(lecture, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(30.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically, // 세로로 중앙 정렬
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.home_screen_check_off), // 이미지 리소스를 설정하세요
+                        contentDescription = "Lecture Icon",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(end = 16.dp) // 이미지와 텍스트 간의 간격 설정
+                    )
+                    Column {
+                        Text(lecture.first, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = lecture.second,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = LightGray60
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
 }
 
 @Composable
-fun circleGraph(name: String) {
+fun CircleGraph(name: String) {
     val animatedValue = remember { Animatable(0f) }
 
     // 특정 값으로 색을 채우는 Animation
@@ -174,7 +200,7 @@ fun circleGraph(name: String) {
     }
 
     Canvas(
-        modifier = Modifier.size(150.dp) // ✅ 원 그래프 크기
+        modifier = Modifier.size(150.dp)
     ) {
         val sizeArc = size / 1.3F
         drawArc(
