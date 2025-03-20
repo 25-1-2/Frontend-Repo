@@ -1,0 +1,11 @@
+package com.capston.data
+
+data class LessonListDto(
+    val lectures: List<LessonDto>
+)
+
+data class LessonDto(
+    val duration: Int, // 강의 시간
+    val lecture_id: String, // 강의 번호
+    val lesson: String, // 강의 이름
+)
