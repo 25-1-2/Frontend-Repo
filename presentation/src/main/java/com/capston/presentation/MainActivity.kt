@@ -6,7 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -54,7 +57,7 @@ fun SettingTopBottomBar(modifier: Modifier = Modifier) {
     var bottomNavState by rememberSaveable { mutableStateOf(0) }
     val navController = rememberNavController()
     Scaffold(
-        topBar = { TopBar() },
+        topBar = { TopBar(true) },
         bottomBar = { BottomBar(navController, bottomNavState, { index -> bottomNavState = index }) },
     ) { contentPadding ->
         NavHost(
@@ -72,7 +75,7 @@ fun SettingTopBottomBar(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+fun TopBar(hasUnreadNotifications: Boolean) {
     Column {
         TopAppBar(
             title = {},
@@ -90,14 +93,28 @@ fun TopBar() {
                 }
             },
             actions = {
-                IconButton(onClick = { /* 알람 클릭 */ }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Notifications,
-                        contentDescription = "alarm icon",
-                        Modifier.size(30.dp)
-                    )
+                Box(contentAlignment = Alignment.TopEnd) {
+                    IconButton(onClick = { /* 알람 클릭 */ }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Notifications,
+                            contentDescription = "alarm icon",
+                            Modifier.size(30.dp)
+                        )
+                    }
+
+                    // 읽지 않은 알람이 있을 경우 빨간색 배지 표시
+                    if (hasUnreadNotifications) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .align(Alignment.TopEnd)
+                                .offset(x = (-12).dp, y = (10).dp) // 위치 조정
+                                .background(Color.Red, shape = CircleShape)
+                                .border(1.dp, Color.White, CircleShape)
+                        )
+                    }
                 }
-            },
+            }
         )
         Divider(color = LightGray2, thickness = 1.dp)
     }
@@ -120,7 +137,7 @@ fun BottomBar(
     Box(
         Modifier
             .fillMaxWidth()
-            .height(70.dp) // BottomNavigationBar 높이 설정
+            .height(100.dp) // BottomNavigationBar 높이 설정
     ) {
         Row(
             Modifier.fillMaxWidth(),
