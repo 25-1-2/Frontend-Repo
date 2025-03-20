@@ -26,12 +26,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -165,13 +169,28 @@ fun LectureList() {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
                 ) {
 
-                    Image(
-                        painter = painterResource(id = R.drawable.home_screen_check_off), // 이미지 리소스를 설정하세요
-                        contentDescription = "Lecture Icon",
+                    var imageState by remember { mutableStateOf(true) }
+
+                    IconButton(
+                        onClick = {
+                            imageState = !imageState
+                        },
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(40.dp) // 이미지 버튼 크기 설정
                             .padding(end = 16.dp) // 이미지와 텍스트 간의 간격 설정
-                    )
+                    ) {
+                        // 상태에 따라 이미지 변경
+                        val imageRes = if (imageState) {
+                            R.drawable.home_screen_check_off // 기본 이미지
+                        } else {
+                            R.drawable.home_screen_check_on // 클릭된 이미지
+                        }
+
+                        Image(
+                            painter = painterResource(id = imageRes), // 상태에 따른 이미지 리소스 설정
+                            contentDescription = "Lecture Icon"
+                        )
+                    }
                     Column {
                         Text(lecture.first, style = MaterialTheme.typography.bodyLarge)
                         Text(
