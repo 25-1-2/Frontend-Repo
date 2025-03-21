@@ -1,12 +1,8 @@
-package com.capston.presentation
+package com.capston.presentation.ui
 
-import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.capston.presentation.R
 
 sealed class Screen(
     val title: String,

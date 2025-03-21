@@ -1,4 +1,4 @@
-package com.capston.presentation
+package com.capston.presentation.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -27,9 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -67,7 +65,7 @@ fun SettingTopBottomBar(modifier: Modifier = Modifier) {
         ) {
             composable(Screen.Home.title) { HomeScreen() }
             composable(Screen.Calender.title) { CalenderScreen() }
-            composable(Screen.Search.title){ SearchScreen()}
+            composable(Screen.Search.title){ SearchScreen() }
             composable(Screen.LectureList.title) { LectureListScreen() }
             composable(Screen.Profile.title) { ProfileScreen() }
         }
