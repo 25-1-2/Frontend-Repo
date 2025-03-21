@@ -131,13 +131,13 @@ fun Calendar(calendarHeight: Int, onDrag: (Float) -> Unit) {
 
 fun getKoreanDayOfWeek(dayOfWeek: Int): String {
     return when (dayOfWeek) {
-        1 -> "일" // Sunday
-        2 -> "월" // Monday
-        3 -> "화" // Tuesday
-        4 -> "수" // Wednesday
-        5 -> "목" // Thursday
-        6 -> "금" // Friday
-        7 -> "토" // Saturday
+        1 -> "월" // Sunday
+        2 -> "화" // Monday
+        3 -> "수" // Tuesday
+        4 -> "목" // Wednesday
+        5 -> "금" // Thursday
+        6 -> "토" // Friday
+        7 -> "일" // Saturday
         else -> ""
     }
 }
