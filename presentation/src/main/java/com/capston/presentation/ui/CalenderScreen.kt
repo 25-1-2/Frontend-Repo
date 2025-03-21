@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.capston.presentation.R
+import com.capston.presentation.theme.LightGray3
+import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.LightGray40
 import com.capston.presentation.theme.MainPurple
 import java.time.LocalDate
@@ -129,75 +131,80 @@ fun CustomCalendar(
             R.string.calender_sat
         )
     }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { onMonthChanged(year, month - 1) }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "이전 달")
-            }
-            Text(
-                text = "${year}년 ${month}월",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = { onMonthChanged(year, month + 1) }) {
-                Icon(Icons.Default.ArrowForward, contentDescription = "다음 달")
-            }
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(daysOfWeek) { dayResId ->
+    Box(
+        modifier = Modifier
+            .background(color = LightGray3) // 배경
+            .border(width = 1.dp, color = LightGray4)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { onMonthChanged(year, month - 1) }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "이전 달")
+                }
                 Text(
-                    text = stringResource(id = dayResId),
-                    color = LightGray40,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(4.dp).fillMaxWidth()
+                    text = "${year}년 ${month}월",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
+                IconButton(onClick = { onMonthChanged(year, month + 1) }) {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "다음 달")
+                }
             }
-        }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(emptyDays + days) { date ->
-                if (date == null) {
-                    Box(modifier = Modifier.height(40.dp)) // 빈칸 처리
-                } else {
-                    val isToday = date == today
-                    val isSelected = date == selectedDate
-                    val backgroundColor = if (isSelected) MainPurple else Color.Transparent
-                    val borderColor = if (isToday) MainPurple else Color.Transparent
-                    val textColor = when {
-                        isSelected -> Color.White   // 선택된 날짜: 흰색 글자
-                        isToday -> MainPurple       // 오늘 날짜: 보라색 글자
-                        else -> Color.Black        // 기본 날짜: 검은색 글자
-                    }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(daysOfWeek) { dayResId ->
+                    Text(
+                        text = stringResource(id = dayResId),
+                        color = LightGray40,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(4.dp).fillMaxWidth()
+                    )
+                }
+            }
 
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .clickable { onDateSelected(date) }
-                            .padding(4.dp)
-                            .size(40.dp)
-                            .background(backgroundColor, shape = RoundedCornerShape(14.dp))
-                            .then(
-                                if (isToday) Modifier.border(
-                                    width = 2.dp,
-                                    color = borderColor,
-                                    shape = RoundedCornerShape(14.dp)
-                                ) else Modifier
-                            )
-                    ) {
-                        Text(text = date.dayOfMonth.toString(), color = textColor)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(emptyDays + days) { date ->
+                    if (date == null) {
+                        Box(modifier = Modifier.height(40.dp)) // 빈칸 처리
+                    } else {
+                        val isToday = date == today
+                        val isSelected = date == selectedDate
+                        val backgroundColor = if (isSelected) MainPurple else Color.Transparent
+                        val borderColor = if (isToday) MainPurple else Color.Transparent
+                        val textColor = when {
+                            isSelected -> Color.White   // 선택된 날짜: 흰색 글자
+                            isToday -> MainPurple       // 오늘 날짜: 보라색 글자
+                            else -> Color.Black        // 기본 날짜: 검은색 글자
+                        }
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .clickable { onDateSelected(date) }
+                                .padding(4.dp)
+                                .size(40.dp)
+                                .background(backgroundColor, shape = RoundedCornerShape(14.dp))
+                                .then(
+                                    if (isToday) Modifier.border(
+                                        width = 2.dp,
+                                        color = borderColor,
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) else Modifier
+                                )
+                        ) {
+                            Text(text = date.dayOfMonth.toString(), color = textColor)
+                        }
                     }
                 }
             }
