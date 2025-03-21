@@ -1,50 +1,30 @@
 package com.capston.presentation.ui
 
+import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
-import android.widget.CalendarView
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.capston.presentation.R
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.capston.presentation.theme.LightGray3
 import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.LightGray40
@@ -52,23 +32,42 @@ import com.capston.presentation.theme.MainPurple
 import java.time.LocalDate
 import java.time.YearMonth
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalenderScreen() {
+    var calendarHeight by remember { mutableStateOf(400) } // 달력의 초기 높이
+    var lessonListHeight by remember { mutableStateOf(250) } // 할일 목록의 초기 높이
+    val bottomBarHeight = 100.dp
+
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = 100.dp),
+            .padding(top = 100.dp)
     ) {
-        Column {
-            CalendarScreen()
-            LessonList(250)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = bottomBarHeight) // 바텀 바를 위해 하단 여백을 설정
+        ) {
+            Calendar(calendarHeight) { delta ->
+                // lessonListHeight 변경 시, 그에 맞춰 calendarHeight도 조정
+                lessonListHeight = (lessonListHeight + delta).coerceIn(100F, 600F).toInt()
+                calendarHeight = (calendarHeight - delta).coerceIn(200F, 600F).toInt()
+            }
+
+            // 할일 목록을 크기 조정 가능하게 만드는 부분
+            Box(modifier = Modifier.weight(1f)) {
+                LessonList(lessonListHeight) // LessonList가 바텀 바 아래로 내려가지 않음
+            }
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarScreen() {
+fun Calendar(calendarHeight: Int, onDrag: (Float) -> Unit) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
     var currentMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
@@ -99,7 +98,9 @@ fun CalendarScreen() {
             month = currentMonth,
             selectedDate = selectedDate,
             onDateSelected = { selectedDate = it },
-            onMonthChanged = { newYear, newMonth -> updateMonth(newYear, newMonth) }
+            onMonthChanged = { newYear, newMonth -> updateMonth(newYear, newMonth) },
+            onDrag = onDrag,
+            calendarHeight = calendarHeight
         )
 
         // 선택된 날짜 표시
@@ -140,7 +141,9 @@ fun CustomCalendar(
     month: Int,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
-    onMonthChanged: (Int, Int) -> Unit
+    onMonthChanged: (Int, Int) -> Unit,
+    onDrag: (Float) -> Unit,
+    calendarHeight: Int
 ) {
     val today = LocalDate.now()
     val firstDayOfMonth = LocalDate.of(year, month, 1)
@@ -158,6 +161,12 @@ fun CustomCalendar(
         modifier = Modifier
             .background(color = LightGray3) // 배경
             .border(width = 1.dp, color = LightGray4)
+            .height(calendarHeight.dp)
+            .pointerInput(Unit) {
+                detectDragGestures { _, dragAmount ->
+                    onDrag(dragAmount.y) // 위아래 드래그 시 크기 변화
+                }
+            }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -210,25 +219,23 @@ fun CustomCalendar(
                         val textColor = when {
                             isSelected -> Color.White   // 선택된 날짜: 흰색 글자
                             isToday -> MainPurple       // 오늘 날짜: 보라색 글자
-                            else -> Color.Black        // 기본 날짜: 검은색 글자
+                            else -> Color.Black         // 일반 날짜: 검정색 글자
                         }
 
                         Box(
-                            contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .clickable { onDateSelected(date) }
-                                .padding(4.dp)
                                 .size(40.dp)
-                                .background(backgroundColor, shape = RoundedCornerShape(14.dp))
-                                .then(
-                                    if (isToday) Modifier.border(
-                                        width = 2.dp,
-                                        color = borderColor,
-                                        shape = RoundedCornerShape(14.dp)
-                                    ) else Modifier
-                                )
+                                .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
+                                .border(1.dp, borderColor, shape = RoundedCornerShape(20.dp))
+                                .clickable { onDateSelected(date) },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(text = date.dayOfMonth.toString(), color = textColor)
+                            Text(
+                                text = date.dayOfMonth.toString(),
+                                color = textColor,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
