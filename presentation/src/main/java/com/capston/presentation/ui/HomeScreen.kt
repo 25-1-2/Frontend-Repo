@@ -480,10 +480,3 @@ fun CircleGraph(name: String) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CapstonTheme {
-        HomeScreen()
-    }
-}

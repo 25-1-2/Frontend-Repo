@@ -3,6 +3,7 @@ package com.capston.presentation.ui
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,16 +22,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import com.capston.presentation.R
+import com.capston.presentation.theme.CapstonTheme
 import com.capston.presentation.theme.LightGray3
 import com.capston.presentation.theme.LightGray4
 import com.capston.presentation.theme.LightGray40
 import com.capston.presentation.theme.MainPurple
 import java.time.LocalDate
 import java.time.YearMonth
+import com.capston.presentation.ui.BottomBar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -51,6 +58,7 @@ fun CalenderScreen() {
                 .fillMaxSize()
                 .padding(bottom = bottomBarHeight) // 바텀 바를 위해 하단 여백을 설정
         ) {
+
             Calendar(calendarHeight) { delta ->
                 // lessonListHeight 변경 시, 그에 맞춰 calendarHeight도 조정
                 lessonListHeight = (lessonListHeight + delta).coerceIn(100F, 600F).toInt()
@@ -241,5 +249,29 @@ fun CustomCalendar(
                 }
             }
         }
+
+        // 고정된 크기
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter) // 캘린더 하단에 배치
+                .padding(top = 10.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.calender_screen_adjust_line_iv),
+                contentDescription = "adjust line",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp) // 이미지 크기 고정
+                    .padding(top = 10.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    CapstonTheme {
+        CalenderScreen()
     }
 }
