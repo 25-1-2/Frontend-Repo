@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -80,6 +81,10 @@ val lectures = listOf(
     Pair("1. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
     Pair("2. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
     Pair( "3. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "4. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "5. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "6. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "7. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,7 +161,16 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(30.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
 
-            LessonList()
+            Text(
+                text = "⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(start = 20.dp)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            LessonList(330)
         }
     }
 
@@ -361,19 +375,10 @@ fun CheckBox() {
 }
 
 @Composable
-fun LessonList() {
+fun LessonList(maxHeight: Int) {
     LazyColumn(
-        modifier = Modifier.padding(start = 30.dp),
+        modifier = Modifier.padding(start = 30.dp).heightIn(max = maxHeight.dp) // 최대 높이를 설정하여 스크롤 범위를 제한
     ) {
-        item {
-            Text(
-                text = "⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-        }
 
         // 강의가 없을 경우
         if (lectures.isEmpty()) {

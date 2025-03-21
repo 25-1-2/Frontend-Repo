@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,7 +59,10 @@ fun CalenderScreen() {
             .fillMaxSize()
             .offset(y = 100.dp),
     ) {
-        CalendarScreen()
+        Column {
+            CalendarScreen()
+            LessonList(250)
+        }
     }
 }
 
@@ -68,6 +72,7 @@ fun CalendarScreen() {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
     var currentMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
+    val today = LocalDate.now()
 
     fun updateMonth(year: Int, month: Int) {
         var newYear = year
@@ -97,9 +102,34 @@ fun CalendarScreen() {
             onMonthChanged = { newYear, newMonth -> updateMonth(newYear, newMonth) }
         )
 
+        // 선택된 날짜 표시
         selectedDate?.let {
-            Text("선택한 날짜: ${it.year}-${it.monthValue}-${it.dayOfMonth}", Modifier.padding(8.dp))
+            val dayOfWeek = it.dayOfWeek.name // 영어 요일
+            val koreanDayOfWeek = getKoreanDayOfWeek(it.dayOfWeek.value) // 한국어 요일 변환
+            Text("${it.year}년 ${it.monthValue}월 ${it.dayOfMonth}일 (${koreanDayOfWeek})",
+                Modifier.padding(start = 20.dp, top = 10.dp), fontSize = 20.sp)
+        } ?: run {
+            // 선택된 날짜가 없으면 오늘 날짜 표시
+            today?.let {
+                val dayOfWeek = it.dayOfWeek.name // 영어 요일
+                val koreanDayOfWeek = getKoreanDayOfWeek(it.dayOfWeek.value) // 한국어 요일 변환
+                Text("${it.year}년 ${it.monthValue}월 ${it.dayOfMonth}일 (${koreanDayOfWeek})",
+                    Modifier.padding(start = 20.dp, top = 10.dp), fontSize = 20.sp)
+            }
         }
+    }
+}
+
+fun getKoreanDayOfWeek(dayOfWeek: Int): String {
+    return when (dayOfWeek) {
+        1 -> "일" // Sunday
+        2 -> "월" // Monday
+        3 -> "화" // Tuesday
+        4 -> "수" // Wednesday
+        5 -> "목" // Thursday
+        6 -> "금" // Friday
+        7 -> "토" // Saturday
+        else -> ""
     }
 }
 
@@ -120,17 +150,10 @@ fun CustomCalendar(
     val days = (1..daysInMonth).map { firstDayOfMonth.plusDays((it - 1).toLong()) }
     val emptyDays = List(firstDayOfWeek) { null } // 빈칸 채우기
 
-    val daysOfWeek = remember {
-        listOf(
-            R.string.calender_sun,
-            R.string.calender_mon,
-            R.string.calender_tue,
-            R.string.calender_wed,
-            R.string.calender_thu,
-            R.string.calender_fri,
-            R.string.calender_sat
-        )
-    }
+    val dayOfWeekMap = listOf(
+        "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" // 영어 요일
+    )
+
     Box(
         modifier = Modifier
             .background(color = LightGray3) // 배경
@@ -155,13 +178,14 @@ fun CustomCalendar(
                 }
             }
 
+            // 영어 요일 표시
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(daysOfWeek) { dayResId ->
+                items(dayOfWeekMap) { day ->
                     Text(
-                        text = stringResource(id = dayResId),
+                        text = day, // 영어 요일 출력
                         color = LightGray40,
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
@@ -170,6 +194,7 @@ fun CustomCalendar(
                 }
             }
 
+            // 날짜 표시
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth()
