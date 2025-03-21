@@ -1,10 +1,16 @@
 package com.capston.presentation
 
 import android.annotation.SuppressLint
+import android.media.Image
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,24 +25,47 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role.Companion.Image
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import com.capston.presentation.theme.CapstonTheme
+import com.capston.presentation.theme.LightGray40
+import com.capston.presentation.theme.LightGray3
+import com.capston.presentation.theme.LightGray4
+import com.capston.presentation.theme.LightGray60
 import com.capston.presentation.theme.MainPurple
+
+val lectures = listOf(
+    Pair("1. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair("2. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+    Pair( "3. 함수의 극한과 연속①","2026 현우진의 수분감 - 수학I (공통) 약 14분"),
+)
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -44,28 +73,66 @@ fun HomeScreen() {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = 150.dp),
+            .offset(y = 66.dp),
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            LazyRow(
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp) // 좌우 여백 추가
+                    .border(width = 2.dp, color = LightGray4)
+                    .background(LightGray3)
+                    .padding(vertical = 16.dp)
             ) {
-                items(3) { index -> // TODO 개수 나중에 API로 받아서 수정
-                    circleGraph("전체")
-                    Spacer(modifier = Modifier.width(16.dp)) // 그래프 간격 추가
-                    circleGraph("수분감")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    circleGraph("믿어봐")
+                Column(
+                    modifier = Modifier
+                        .padding(start = 20.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, // 세로로 정렬
+                        horizontalArrangement = Arrangement.SpaceBetween, // 양 끝에 배치
+                        modifier = Modifier.fillMaxWidth() // Row를 최대 너비로 설정
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_status),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                        )
+
+                        Text(
+                            text = stringResource(R.string.home_edit),
+                            color = LightGray40, // 원하는 색상으로 설정
+                            modifier = Modifier
+                                .padding(top = 25.dp, end = 20.dp)
+                                .clickable {
+                                    // 편집 버튼 클릭 시 동작
+                                }
+                        )
+                    }
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        items(3) { index -> // TODO 개수 나중에 API로 받아서 수정
+                            CircleGraph("전체")
+                            Spacer(modifier = Modifier.width(16.dp)) // 그래프 간격 추가
+                            CircleGraph("수분감")
+                            Spacer(modifier = Modifier.width(16.dp))
+                            CircleGraph("믿어봐")
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
+            Spacer(modifier = Modifier.height(30.dp)) // 🌟 그래프와 강의 목록 사이 간격 추가
 
             LectureList()
         }
@@ -74,25 +141,73 @@ fun HomeScreen() {
 
 @Composable
 fun LectureList() {
-    Column(modifier = Modifier.padding(30.dp)) {
-        Text("⭐ 오늘의 강의 (총 3강, 약 42분)", style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
+    LazyColumn(
+        modifier = Modifier.padding(start = 30.dp),
+    ) {
+        item {
+            Text(
+                text = "⭐ 오늘의 강의 (총 ${lectures.size}강, 약 42분)",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
-        val lectures = listOf(
-            "1. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            "2. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분",
-            "3. 함수의 극한과 연속①\n2026 현우진의 수분감 - 수학I (공통) · 약 14분"
-        )
+        // 강의가 없을 경우
+        if (lectures.isEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+                Text("오늘 강의가 없어요 \uD83D\uDE0A\n" +
+                        "푹 쉬고 내일 다시 달려보아요 \uD83C\uDFC3")
+            }
+        } else {
+            // 강의가 있을 경우
+            items(lectures) { lecture ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically, // 세로로 중앙 정렬
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                ) {
 
-        lectures.forEach { lecture ->
-            Text(lecture, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(50.dp))
+                    var imageState by remember { mutableStateOf(true) }
+
+                    IconButton(
+                        onClick = {
+                            imageState = !imageState
+                        },
+                        modifier = Modifier
+                            .size(40.dp) // 이미지 버튼 크기 설정
+                            .padding(end = 16.dp) // 이미지와 텍스트 간의 간격 설정
+                    ) {
+                        // 상태에 따라 이미지 변경
+                        val imageRes = if (imageState) {
+                            R.drawable.home_screen_check_off // 기본 이미지
+                        } else {
+                            R.drawable.home_screen_check_on // 클릭된 이미지
+                        }
+
+                        Image(
+                            painter = painterResource(id = imageRes), // 상태에 따른 이미지 리소스 설정
+                            contentDescription = "Lecture Icon"
+                        )
+                    }
+                    Column {
+                        Text(lecture.first, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = lecture.second,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = LightGray60
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }
 
 @Composable
-fun circleGraph(name: String) {
+fun CircleGraph(name: String) {
     val animatedValue = remember { Animatable(0f) }
 
     // 특정 값으로 색을 채우는 Animation
@@ -157,5 +272,13 @@ fun circleGraph(name: String) {
                 textSize = 50f  // 텍스트 크기
             }
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    CapstonTheme {
+        HomeScreen()
     }
 }
