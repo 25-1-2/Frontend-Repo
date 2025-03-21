@@ -1,4 +1,4 @@
-package com.capston.presentation
+package com.capston.presentation.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun CalenderScreen() {
+fun ProfileScreen() {
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Box(
             modifier = Modifier
@@ -18,7 +18,7 @@ fun CalenderScreen() {
                 .padding(innerPadding),
             contentAlignment = Alignment.Center // 정중앙에 배치
         ) {
-            Text("calender")
+            Text("profile")
         }
     }
 }
